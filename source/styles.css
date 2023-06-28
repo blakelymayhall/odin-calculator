@@ -77,8 +77,8 @@ button:hover {
 }
 
 .funcButton {
-    width: 40%;
+    width:30%;
     height: 50%;
     border-radius: 10px;
-    font-size: 18px; 
+    font-size: 18px;
 }
