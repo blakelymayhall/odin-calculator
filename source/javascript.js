@@ -5,6 +5,7 @@ const MAX_DIGITS    = 8;
 const CalculatorModes = {
 	INIT: Symbol("init"),
 	NUM1_ENTRY: Symbol("num1_entry"),
+    AWAIT_NUM2: Symbol("await_num2"),
 	NUM2_ENTRY: Symbol("num2_entry"),
 	DISP_RESULT: Symbol("disp_result")
 }
@@ -27,16 +28,19 @@ let calculatorMode = CalculatorModes.INIT;
 
 digitButtons.forEach((digitButton) => {
     digitButton.addEventListener('click', () => {
-        if(calculatorMode == CalculatorModes.INIT) {
+        if(calculatorMode === CalculatorModes.INIT || calculatorMode === CalculatorModes.DISP_RESULT) {
             num1 = null;
             num2 = null;
             operator = null;
             dispNumber = "";
+            deleteDigitsFromScreen();
             calculatorMode = CalculatorModes.NUM1_ENTRY;
         }
 
-        if(calculatorMode == CalculatorModes.NUM2_ENTRY & num1 != null) {
+        if (calculatorMode === CalculatorModes.AWAIT_NUM2 || calculatorMode === CalculatorModes.DISP_RESULT) {
+            dispNumber = "";
             deleteDigitsFromScreen();
+            calculatorMode = CalculatorModes.NUM2_ENTRY;
         }
 
         if (dispNumber.length < MAX_DIGITS) {
@@ -48,20 +52,20 @@ digitButtons.forEach((digitButton) => {
 
 opButtons.forEach((opButton) => {
     opButton.addEventListener('click', () => {
-        if (dispNumber.length != 0) {
-            if (calculatorMode == CalculatorModes.NUM1_ENTRY) {
+        if (calculatorMode != CalculatorModes.AWAIT_NUM2) {
+            if (calculatorMode === CalculatorModes.NUM1_ENTRY) {
                 num1 = +dispNumber;
-                calculatorMode = CalculatorModes.NUM2_ENTRY;
                 deleteDigitsFromScreen();
+                calculatorMode = CalculatorModes.AWAIT_NUM2;
             }
-            else if (calculatorMode == CalculatorModes.NUM2_ENTRY) {
+            else if (calculatorMode === CalculatorModes.NUM2_ENTRY) {
                 num2 = +dispNumber;
                 num1 = operate(num1,num2,operator);
                 dispNumber = num1.toString();
                 deleteDigitsFromScreen();
                 addDigitsToScreen(dispNumber);
+                calculatorMode = CalculatorModes.AWAIT_NUM2;
             }
-            dispNumber = "";
         }
         operator = opButton.dataset.operator;
     });
@@ -69,18 +73,20 @@ opButtons.forEach((opButton) => {
 
 funcButtons.forEach((funcButton) => {
     funcButton.addEventListener('click', () => {
-        if (funcButton.dataset.func == "enter" && num1 != null && calculatorMode == CalculatorModes.NUM2_ENTRY) {
-            num2 = +dispNumber;
-            num1 = operate(num1,num2,operator);
-            dispNumber = num1.toString();
-            deleteDigitsFromScreen();
-            addDigitsToScreen(dispNumber);
-            dispNumber = "";
-        }
+        if (calculatorMode !== CalculatorModes.AWAIT_NUM2) {
+            if (funcButton.dataset.func == "enter") {
+                num2 = +dispNumber;
+                num1 = operate(num1,num2,operator);
+                dispNumber = num1.toString();
+                deleteDigitsFromScreen();
+                addDigitsToScreen(dispNumber);
+                calculatorMode = CalculatorModes.DISP_RESULT;
+            }
+        }  
 
         if (funcButton.dataset.func == "clear") {
-            calculatorMode = CalculatorModes.INIT;
             deleteDigitsFromScreen();
+            calculatorMode = CalculatorModes.INIT;
         }
     });
 });
