@@ -11,7 +11,6 @@ const CalculatorModes = {
 	ENTR_STDBY: Symbol("entr_stdby")
 }
 
-
 let num1 = null;
 let num2 = null;
 let operator = null;
@@ -20,68 +19,20 @@ let calculatorMode = CalculatorModes.INIT;
 
 digitButtons.forEach((digitButton) => {
     digitButton.addEventListener('click', () => {
-
-        if (calculatorMode === CalculatorModes.INIT || calculatorMode === CalculatorModes.ENTR_STDBY) {
-            num1 = null;
-            num2 = null;
-            operator = null;
-            dispNumber = "";
-            deleteDigitsFromScreen();
-            calculatorMode = CalculatorModes.NUM1_ENTRY;
-        }
-
-        if (calculatorMode === CalculatorModes.NUM2_STDBY) {
-            deleteDigitsFromScreen();
-            calculatorMode = CalculatorModes.NUM2_ENTRY;
-        }
-
-        if (dispNumber.length < MAX_DIGITS) {
-            addDigitsToScreen(digitButton.dataset.digit);
-            dispNumber += digitButton.dataset.digit;
-        }
+        digitSequence(digitButton);
     });
 });
 
 opButtons.forEach((opButton) => {
     opButton.addEventListener('click', () => {
-
-        if(calculatorMode === CalculatorModes.ENTR_STDBY) {
-            calculatorMode = CalculatorModes.NUM1_ENTRY;
-        }
-
-        if (calculatorMode === CalculatorModes.NUM1_ENTRY) {
-            num1 = +dispNumber;
-            dispNumber = "";
-        }
-
-        if (calculatorMode === CalculatorModes.NUM2_ENTRY) {
-            num2 = +dispNumber;
-            num1 = operate(num1, num2, operator)
-            dispNumber = num1.toString();
-            deleteDigitsFromScreen();
-            addDigitsToScreen(dispNumber);
-        }
-
-        dispNumber = "";
-        operator = opButton.dataset.operator;
-        calculatorMode = CalculatorModes.NUM2_STDBY;
+        operationSequence(opButton);
     });
 });
 
 funcButtons.forEach((funcButton) => {
     funcButton.addEventListener('click', () => {
-        if (funcButton.dataset.func == "enter" && calculatorMode === CalculatorModes.NUM2_ENTRY) {
-            num2 = +dispNumber;
-            num1 = operate(num1, num2, operator);
-            if (num1 % 1 !== 0) {
-                num1 = num1.toFixed(2);
-            }
-            dispNumber = num1.toString();
-            deleteDigitsFromScreen();
-            addDigitsToScreen(dispNumber);
-            calculatorMode = CalculatorModes.ENTR_STDBY;
-        }
-         
+
+        enterFunction(funcButton);
 
         if (funcButton.dataset.func == "clear") {
             deleteDigitsFromScreen();
@@ -89,6 +40,100 @@ funcButtons.forEach((funcButton) => {
         }
     });
 });
+
+/* Digit Sequence 
+ * runs when the user strikes a digit key
+ * 
+ * If in init mode or enter standby mode, reset the system and
+ * begin from null into num1 entry
+ * 
+ * If in num2 standby, proceed to num2 entry
+ * 
+ * Add digits to the screen
+ * 
+ */
+function digitSequence(digitButton) {
+    if (calculatorMode === CalculatorModes.INIT || calculatorMode === CalculatorModes.ENTR_STDBY) {
+        num1 = null;
+        num2 = null;
+        operator = null;
+        dispNumber = "";
+        deleteDigitsFromScreen();
+        calculatorMode = CalculatorModes.NUM1_ENTRY;
+    }
+
+    if (calculatorMode === CalculatorModes.NUM2_STDBY) {
+        deleteDigitsFromScreen();
+        calculatorMode = CalculatorModes.NUM2_ENTRY;
+    }
+
+    if (dispNumber.length < MAX_DIGITS) {
+        addDigitsToScreen(digitButton.dataset.digit);
+        dispNumber += digitButton.dataset.digit;
+    }
+}
+
+/* Operator Sequence 
+ * runs when the user strikes an operator key
+ * 
+ * if in enter standby mode, revert to num1 entry
+ * so that num1 is set and we go through num2 entry 
+ * again
+ * 
+ * if in num1 entry mode, set num1 and proceed to num2 
+ * entry
+ * 
+ * if in num2 entry, calculate interim result and 
+ * dispaly to the user. Revert back to num2 standby
+ * 
+ */
+function operationSequence(opButton) {
+    if(calculatorMode === CalculatorModes.ENTR_STDBY) {
+        calculatorMode = CalculatorModes.NUM1_ENTRY;
+    }
+
+    if (calculatorMode === CalculatorModes.NUM1_ENTRY) {
+        num1 = +dispNumber;
+        dispNumber = "";
+    }
+
+    if (calculatorMode === CalculatorModes.NUM2_ENTRY) {
+        num2 = +dispNumber;
+        num1 = operate(num1, num2, operator);
+        if (num1 % 1 !== 0) {
+            num1 = num1.toFixed(2);
+        }
+        dispNumber = num1.toString();
+        deleteDigitsFromScreen();
+        addDigitsToScreen(dispNumber);
+    }
+
+    dispNumber = "";
+    operator = opButton.dataset.operator;
+    calculatorMode = CalculatorModes.NUM2_STDBY;
+}
+
+/* Enter Function 
+ * runs when the user strikes the enter key from 
+ * calculator mode NUM2_ENTRY
+ * 
+ * Displays the queued operation result
+ * and puts the calculator in enter standby mode
+ * 
+ */
+function enterFunction(funcButton) {
+    if (funcButton.dataset.func == "enter" && calculatorMode === CalculatorModes.NUM2_ENTRY) {
+        num2 = +dispNumber;
+        num1 = operate(num1, num2, operator);
+        if (num1 % 1 !== 0) {
+            num1 = num1.toFixed(2);
+        }
+        dispNumber = num1.toString();
+        deleteDigitsFromScreen();
+        addDigitsToScreen(dispNumber);
+        calculatorMode = CalculatorModes.ENTR_STDBY;
+    }
+}
 
 // Support function - Adds digits to the screen from a string
 function addDigitsToScreen(dispNumber) {
