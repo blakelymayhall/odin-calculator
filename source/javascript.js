@@ -78,6 +78,12 @@ function digitSequence(digitButton) {
     }
 
     if (dispNumber.length < MAX_DIGITS) {
+
+        // prevent multiple decimals
+        if (digitButton.dataset.digit == "." && (dispNumber.match(/./g) || []).length == 1) {
+            return;
+        }
+
         addDigitsToScreen(digitButton.dataset.digit);
         dispNumber += digitButton.dataset.digit;
     }
