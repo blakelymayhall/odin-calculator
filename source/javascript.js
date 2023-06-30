@@ -19,7 +19,7 @@ let calculatorMode = CalculatorModes.INIT;
 
 digitButtons.forEach((digitButton) => {
     digitButton.addEventListener('click', () => {
-        digitSequence(digitButton);
+        digitSequence(digitButton)
     });
 });
 
@@ -32,11 +32,21 @@ opButtons.forEach((opButton) => {
 funcButtons.forEach((funcButton) => {
     funcButton.addEventListener('click', () => {
 
-        enterFunction(funcButton);
+        if (funcButton.dataset.func == "enter" && calculatorMode === CalculatorModes.NUM2_ENTRY) {
+            enterFunction(funcButton);
+        }
 
         if (funcButton.dataset.func == "clear") {
             deleteDigitsFromScreen();
             calculatorMode = CalculatorModes.INIT;
+        }
+
+        let numEntryMode = (calculatorMode === CalculatorModes.NUM2_ENTRY || 
+            calculatorMode === CalculatorModes.NUM1_ENTRY);
+        if (funcButton.dataset.func == "backspace" && numEntryMode) {
+            deleteDigitsFromScreen();
+            dispNumber = dispNumber.substring(0, dispNumber.length-1);
+            addDigitsToScreen(dispNumber);
         }
     });
 });
@@ -122,17 +132,15 @@ function operationSequence(opButton) {
  * 
  */
 function enterFunction(funcButton) {
-    if (funcButton.dataset.func == "enter" && calculatorMode === CalculatorModes.NUM2_ENTRY) {
-        num2 = +dispNumber;
-        num1 = operate(num1, num2, operator);
-        if (num1 % 1 !== 0) {
-            num1 = num1.toFixed(2);
-        }
-        dispNumber = num1.toString();
-        deleteDigitsFromScreen();
-        addDigitsToScreen(dispNumber);
-        calculatorMode = CalculatorModes.ENTR_STDBY;
+    num2 = +dispNumber;
+    num1 = operate(num1, num2, operator);
+    if (num1 % 1 !== 0) {
+        num1 = num1.toFixed(2);
     }
+    dispNumber = num1.toString();
+    deleteDigitsFromScreen();
+    addDigitsToScreen(dispNumber);
+    calculatorMode = CalculatorModes.ENTR_STDBY;
 }
 
 // Support function - Adds digits to the screen from a string
