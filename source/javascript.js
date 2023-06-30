@@ -31,7 +31,7 @@ opButtons.forEach((opButton) => {
 
 funcButtons.forEach((funcButton) => {
     funcButton.addEventListener('click', () => {
-        if (funcButton.dataset.func == "enter" && calculatorMode === CalculatorModes.NUM2_ENTRY) {
+        if (funcButton.dataset.func == "enter" && calculatorMode === CalculatorModes.NUM2_ENTRY && dispNumber != "") {
             enterFunction(funcButton);
         }
 
@@ -79,7 +79,8 @@ function digitSequence(digitButton) {
     if (dispNumber.length < MAX_DIGITS) {
 
         // prevent multiple decimals
-        if (digitButton.dataset.digit == "." && (dispNumber.match(/./g) || []).length == 1) {
+        let numDecimals = dispNumber.replace(/[^.]/g, "").length
+        if (digitButton.dataset.digit == "." && numDecimals == 1) {
             return;
         }
 
