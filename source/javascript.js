@@ -31,7 +31,6 @@ opButtons.forEach((opButton) => {
 
 funcButtons.forEach((funcButton) => {
     funcButton.addEventListener('click', () => {
-
         if (funcButton.dataset.func == "enter" && calculatorMode === CalculatorModes.NUM2_ENTRY) {
             enterFunction(funcButton);
         }
@@ -108,12 +107,13 @@ function operationSequence(opButton) {
         calculatorMode = CalculatorModes.NUM1_ENTRY;
     }
 
-    if (calculatorMode === CalculatorModes.NUM1_ENTRY) {
+    if (calculatorMode === CalculatorModes.NUM1_ENTRY && dispNumber != "") {
         num1 = +dispNumber;
         dispNumber = "";
+        calculatorMode = CalculatorModes.NUM2_STDBY;
     }
 
-    if (calculatorMode === CalculatorModes.NUM2_ENTRY) {
+    if (calculatorMode === CalculatorModes.NUM2_ENTRY && dispNumber != "") {
         num2 = +dispNumber;
         num1 = operate(num1, num2, operator);
         if (num1 % 1 !== 0) {
@@ -122,11 +122,11 @@ function operationSequence(opButton) {
         dispNumber = num1.toString();
         deleteDigitsFromScreen();
         addDigitsToScreen(dispNumber);
+        calculatorMode = CalculatorModes.NUM2_STDBY;
     }
 
     dispNumber = "";
     operator = opButton.dataset.operator;
-    calculatorMode = CalculatorModes.NUM2_STDBY;
 }
 
 /* Enter Function 
