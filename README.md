@@ -10,3 +10,6 @@ Order of operations for basic four-function calculators should be implemented (i
 
 ## MVP reached 6/28
 This check in includes tested and robust functionality of the calculator operations. Does not include decimal or backspace, that will come in an iteration on MVP
+
+## Final
+added backspace and decimal functionality 7/1
